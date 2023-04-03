@@ -63,7 +63,6 @@ namespace EShopperAngular.Controllers.Authentication
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
             new Claim(JwtRegisteredClaimNames.Acr,userrole),
-            new Claim(JwtRegisteredClaimNames.)
 
         };
 
