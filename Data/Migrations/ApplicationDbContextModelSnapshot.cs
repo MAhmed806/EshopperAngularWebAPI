@@ -54,7 +54,7 @@ namespace EShopperAngular.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("ChargeAgainstOrder");
+                    b.ToTable("ChargeAgainstOrder", (string)null);
                 });
 
             modelBuilder.Entity("EShopperAngular.Models.Order", b =>
@@ -108,7 +108,7 @@ namespace EShopperAngular.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Order");
+                    b.ToTable("Order", (string)null);
                 });
 
             modelBuilder.Entity("EShopperAngular.Models.OrderDetails", b =>
@@ -134,7 +134,7 @@ namespace EShopperAngular.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderDetails", (string)null);
                 });
 
             modelBuilder.Entity("EShopperAngular.Models.Products", b =>
@@ -173,7 +173,7 @@ namespace EShopperAngular.Migrations
 
                     b.HasIndex("ProductTypeID");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("EShopperAngular.Models.ProductTypes", b =>
@@ -194,7 +194,7 @@ namespace EShopperAngular.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductTypes");
+                    b.ToTable("ProductTypes", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

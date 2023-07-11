@@ -1,7 +1,6 @@
 ﻿using EShopperAngular.Models;
 using EShopperAngular.Repositories.GenericRepository;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -15,7 +14,7 @@ namespace EShopperAngular.Controllers.Manager
         private IGenericRepository<Products> _productRepository;
         private IGenericRepository<ProductTypes> _productTypesRepository;
         private IGenericRepository<ChargeAgainstOrder> _chargeAgainstOrderRepository;
-        public ManageOrders(IGenericRepository<Order> orderRepository, IGenericRepository<OrderDetails> orderDetailsRepository, IGenericRepository<Products> genericRepository, IGenericRepository<ProductTypes> productTypesRepository,IGenericRepository<ChargeAgainstOrder> generic)
+        public ManageOrders(IGenericRepository<Order> orderRepository, IGenericRepository<OrderDetails> orderDetailsRepository, IGenericRepository<Products> genericRepository, IGenericRepository<ProductTypes> productTypesRepository, IGenericRepository<ChargeAgainstOrder> generic)
         {
             _orderRepository = orderRepository;
             _orderDetailsRepository = orderDetailsRepository;
@@ -32,7 +31,7 @@ namespace EShopperAngular.Controllers.Manager
             {
                 return NoContent();
             }
-            foreach(var order in orders)
+            foreach (var order in orders)
             {
                 order.PaymentDetails = _chargeAgainstOrderRepository.Index().FirstOrDefault(x => x.OrderId == order.Id);
 
@@ -71,22 +70,22 @@ namespace EShopperAngular.Controllers.Manager
                 var paymentstatus = json["PaymentStatus"]?.ToString();
                 var refundstatus = json["RefundStatus"]?.ToString();
                 order.OrderDetails = _orderDetailsRepository.Index().Where(x => x.OrderId == order.Id).ToList();
-                if(paymentstatus != null)
+                if (paymentstatus != null)
                 {
                     if (_chargeAgainstOrderRepository.Index().FirstOrDefault(x => x.OrderId == order.Id) == null)
                     {
-                        ChargeAgainstOrder cao= new ChargeAgainstOrder();
+                        ChargeAgainstOrder cao = new ChargeAgainstOrder();
                         cao.OrderId = order.Id;
-                        cao.ChargeStatus= paymentstatus;
+                        cao.ChargeStatus = paymentstatus;
                         cao.RefundStatus = refundstatus;
                         cao.ChargeId = "Cash On Delivery";
-                        cao.RefundId = "No Refund on Cash on Delivery"; 
+                        cao.RefundId = "No Refund on Cash on Delivery";
                         _chargeAgainstOrderRepository.Create(cao);
                         _chargeAgainstOrderRepository.Save();
                     }
                     else
                     {
-                        var pd= _chargeAgainstOrderRepository.Index().FirstOrDefault(x=>x.OrderId==order.Id);
+                        var pd = _chargeAgainstOrderRepository.Index().FirstOrDefault(x => x.OrderId == order.Id);
                         pd.ChargeStatus = paymentstatus;
                         pd.RefundStatus = refundstatus;
                         _chargeAgainstOrderRepository.Edit(pd);
@@ -101,17 +100,17 @@ namespace EShopperAngular.Controllers.Manager
             {
                 return Ok(ex.InnerException.Message);
             }
-           
+
         }
         [HttpGet("GetChartData")]
         public JsonResult GetData()
         {
             var hello = _orderDetailsRepository.Index();
-            foreach(var item in hello)
+            foreach (var item in hello)
             {
-                item.Product= _productRepository.Details(item.ProductId);
+                item.Product = _productRepository.Details(item.ProductId);
             }
-            var query =hello.GroupBy(p=>p.Product.Name).Select(g => new { ProductName = g.Key, OrderQuantity = g.Sum(w => w.ProductQuantity) }).ToList();
+            var query = hello.GroupBy(p => p.Product.Name).Select(g => new { ProductName = g.Key, OrderQuantity = g.Sum(w => w.ProductQuantity) }).ToList();
             return Json(query);
         }
     }

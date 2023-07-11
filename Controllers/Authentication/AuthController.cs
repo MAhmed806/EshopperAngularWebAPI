@@ -29,13 +29,11 @@ namespace EShopperAngular.Controllers.Authentication
 
         }
 
-        // login endpoint
         [HttpPost("login")]
         public async Task<IActionResult> Login(JsonValue json)
         {
             ApplicationUser user= JsonSerializer.Deserialize<ApplicationUser>(json);
             string userrole = "";
-            // attempt to sign in the user
             var result = await _signInManager.PasswordSignInAsync(user.Email,user.PasswordHash,user.RememberMe, false);
            var myuser=await _userManager.FindByEmailAsync(user.Email);
             if (!result.Succeeded)
@@ -50,13 +48,11 @@ namespace EShopperAngular.Controllers.Authentication
                     userrole= role.Name;
                 }
             }
-            // create a JWT token and return it to the client
             var token = GenerateJwtToken(user.Email,userrole);
             return Ok(new { token,result });
         }
         private string GenerateJwtToken(string email,string userrole)
         {
-            // create the claims for the JWT token
             var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, email),
@@ -66,10 +62,8 @@ namespace EShopperAngular.Controllers.Authentication
 
         };
 
-            // get the secret key from the configuration
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
 
-            // create the JWT token
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
@@ -78,7 +72,6 @@ namespace EShopperAngular.Controllers.Authentication
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
             );
 
-            // return the encoded JWT token
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
         [HttpPost("register")]
