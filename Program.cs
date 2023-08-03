@@ -1,4 +1,3 @@
-using EShopperAngular.Controllers.Customer;
 using EShopperAngular.Data;
 using EShopperAngular.Models;
 using EShopperAngular.Repositories.GenericRepository;
@@ -28,7 +27,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
-//JWT Middlewate end
+//JWT Middleware end
 //stripe 
 builder.Services.AddScoped<StripeService>();
 builder.Services.AddScoped<CardService>();

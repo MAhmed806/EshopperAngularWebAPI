@@ -81,7 +81,6 @@ namespace EShopperAngular.Controllers.Admin
                 hehe.Users = susers;
                 hehe.Role=role;
                 return Ok(hehe);
-
             }
             return BadRequest(new { message = "Invalid Id" });
         }

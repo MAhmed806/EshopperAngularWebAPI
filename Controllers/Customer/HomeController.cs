@@ -41,7 +41,31 @@ namespace EShopperAngular.Controllers.Customer
             }
             return products;
         }
-        
+        [HttpGet("lowtohigh")]
+        // GET: HomeController
+        public IEnumerable<Products> Filterproductslowtohigh()
+        {
+            var products = _productsRepository.Index();
+            var orderedproducts= from product in products orderby product.Price ascending select product;
+            foreach (var item in orderedproducts)
+            {
+                item.ProductTypes = _productTypesRepository.Details(item.ProductTypeID);
+            }
+            return orderedproducts;
+        }
+        [HttpGet("hightolow")]
+        // GET: HomeController
+        public IEnumerable<Products> Filterproductshightolow()
+        {
+            var products = _productsRepository.Index();
+            var orderedproducts = from product in products orderby product.Price descending select product;
+            foreach (var item in orderedproducts)
+            {
+                item.ProductTypes = _productTypesRepository.Details(item.ProductTypeID);
+            }
+            return orderedproducts;
+        }
+
         [HttpGet("ProductTypes")]
         public IEnumerable<ProductTypes> GetPT()
         {
