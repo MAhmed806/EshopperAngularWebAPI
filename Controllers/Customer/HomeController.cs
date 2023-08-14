@@ -1,10 +1,7 @@
 ﻿using EShopperAngular.DTOs;
 using EShopperAngular.Models;
 using EShopperAngular.Repositories.GenericRepository;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Stripe;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -20,14 +17,14 @@ namespace EShopperAngular.Controllers.Customer
         private IGenericRepository<OrderDetails> _orderDetailsRepository;
         private IGenericRepository<ChargeAgainstOrder> _paymentdetails;
         private IGenericRepository<ChargeAgainstOrder> _chargeao;
-        public HomeController(IGenericRepository<Products> prepo,IGenericRepository<ProductTypes> ptrepo,IGenericRepository<Order> orepo,IGenericRepository<OrderDetails>odrepo,IGenericRepository<ChargeAgainstOrder>paymnetdetails,IGenericRepository<ChargeAgainstOrder> charge) 
+        public HomeController(IGenericRepository<Products> prepo, IGenericRepository<ProductTypes> ptrepo, IGenericRepository<Order> orepo, IGenericRepository<OrderDetails> odrepo, IGenericRepository<ChargeAgainstOrder> paymnetdetails, IGenericRepository<ChargeAgainstOrder> charge)
         {
             _productsRepository = prepo;
             _productTypesRepository = ptrepo;
             _orderRepository = orepo;
-            _orderDetailsRepository=odrepo;
-            _paymentdetails=paymnetdetails;
-            _chargeao=charge;
+            _orderDetailsRepository = odrepo;
+            _paymentdetails = paymnetdetails;
+            _chargeao = charge;
         }
 
         [HttpGet("Products")]
@@ -35,7 +32,7 @@ namespace EShopperAngular.Controllers.Customer
         public IEnumerable<Products> Get()
         {
             var products = _productsRepository.Index();
-            foreach(var item in products)
+            foreach (var item in products)
             {
                 item.ProductTypes = _productTypesRepository.Details(item.ProductTypeID);
             }
@@ -46,7 +43,7 @@ namespace EShopperAngular.Controllers.Customer
         public IEnumerable<Products> Filterproductslowtohigh()
         {
             var products = _productsRepository.Index();
-            var orderedproducts= from product in products orderby product.Price ascending select product;
+            var orderedproducts = from product in products orderby product.Price ascending select product;
             foreach (var item in orderedproducts)
             {
                 item.ProductTypes = _productTypesRepository.Details(item.ProductTypeID);
@@ -88,20 +85,20 @@ namespace EShopperAngular.Controllers.Customer
             if (!string.IsNullOrEmpty(searchstring))
             {
                 string loweredstring = searchstring.ToLower();
-               var products = _productsRepository.Index().Where(s=>s.Name.ToLower().Contains(loweredstring));
-                    return products;
+                var products = _productsRepository.Index().Where(s => s.Name.ToLower().Contains(loweredstring));
+                return products;
             }
             return null;
         }
         [HttpGet("ProductDetails/{id}")]
         public ActionResult<Products> ProductDetails(int id)
         {
-            if(id!=null )
+            if (id != null)
             {
                 var prod = _productsRepository.Details(id);
-                if(prod!=null)
+                if (prod != null)
                 {
-                    prod.ProductTypes= _productTypesRepository.Details(prod.ProductTypeID);
+                    prod.ProductTypes = _productTypesRepository.Details(prod.ProductTypeID);
                     return prod;
                 }
                 return NotFound();
@@ -117,13 +114,14 @@ namespace EShopperAngular.Controllers.Customer
                 var prod = _productsRepository.Index().Where(x => x.ProductTypeID == id);
                 if (prod != null)
                 {
-                    foreach(var item in prod)
+                    foreach (var item in prod)
                     {
                         item.ProductTypes = _productTypesRepository.Details(item.ProductTypeID);
                     }
                     var final = new ProductAndProductTypesDTO
                     {
-                        products=prod,ptypes=producttype
+                        products = prod,
+                        ptypes = producttype
                     };
                     return final;
                 }
@@ -132,13 +130,13 @@ namespace EShopperAngular.Controllers.Customer
             return null;
         }
 
-       
-       
+
+
         [HttpPost("Checkout")]
         public IActionResult Checkout(JsonValue Order)
         {
             if (Order != null)
-            { 
+            {
                 var order = JsonSerializer.Deserialize<Order>(Order);
                 foreach (var item in order.OrderDetails)
                 {
@@ -168,14 +166,14 @@ namespace EShopperAngular.Controllers.Customer
                 }
                 return Ok(order);
             }
-                return Ok("Order Place Unsuccessfull");
+            return Ok("Order Place Unsuccessfull");
         }
         [HttpGet("Filter/{min}/{max}")]
         public IEnumerable<Products> Filteration(int min, int max)
         {
-           
-            var products =_productsRepository.Index().Where(x=>x.Price>=min && x.Price<= max);
-            foreach(var prod in products)
+
+            var products = _productsRepository.Index().Where(x => x.Price >= min && x.Price <= max);
+            foreach (var prod in products)
             {
                 prod.ProductTypes = _productTypesRepository.Details(prod.ProductTypeID);
             }
@@ -189,8 +187,8 @@ namespace EShopperAngular.Controllers.Customer
         [HttpGet("OrderDetails/{id}")]
         public ActionResult<Order> OrderDetails(int id)
         {
-            Order order= _orderRepository.Details(id);
-            if(order != null)
+            Order order = _orderRepository.Details(id);
+            if (order != null)
             {
                 List<OrderDetails> details = _orderDetailsRepository.Index().Where(x => x.OrderId == id).ToList();
                 foreach (var item in details)
@@ -204,7 +202,7 @@ namespace EShopperAngular.Controllers.Customer
 
             }
             return NotFound();
-            
+
         }
         [HttpDelete("CancelOrder/{id}")]
         public ActionResult<Order> CancelOrder(int id)
@@ -212,7 +210,7 @@ namespace EShopperAngular.Controllers.Customer
             if (id != null)
             {
                 Order order = _orderRepository.Details(id);
-                if(order != null)
+                if (order != null)
                 {
                     order.OrderStatus = "Order Cancelled";
                     _orderRepository.Edit(order);
@@ -225,16 +223,16 @@ namespace EShopperAngular.Controllers.Customer
 
         }
         [HttpGet("MyOrderList/{username}")]
-        public IEnumerable<Order> GetOrders(string username) 
+        public IEnumerable<Order> GetOrders(string username)
         {
             if (username != null)
             {
-                IEnumerable<Order> Order= _orderRepository.Index().Where(x => x.UserId == username);
+                IEnumerable<Order> Order = _orderRepository.Index().Where(x => x.UserId == username);
                 return Order;
             }
             return Enumerable.Empty<Order>();
         }
-   
+
         //// GET: HomeController/Create
         //public ActionResult Create()
         //{
