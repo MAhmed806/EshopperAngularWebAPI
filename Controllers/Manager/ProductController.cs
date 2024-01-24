@@ -12,9 +12,13 @@ namespace EShopperAngular.Controllers.Manager
     public class ProductController : Controller
     {
         private IGenericRepository<Products> _productsRepository;
+        private IGenericRepository<Color> _colorRepository;
+        private IGenericRepository<ProductColors> _productColorRepository;
         private IGenericRepository<ProductTypes> _productsTypesRepository;
-        public ProductController(IGenericRepository<Products> repository, IGenericRepository<ProductTypes> ptyperepo)
+        public ProductController(IGenericRepository<Products> repository, IGenericRepository<ProductTypes> ptyperepo, IGenericRepository<Color> colorRepo,IGenericRepository<ProductColors> productcolorrepo)
         {
+            _colorRepository = colorRepo;
+            _productColorRepository = productcolorrepo;
             _productsRepository = repository;
             _productsTypesRepository = ptyperepo;
         }
@@ -43,6 +47,38 @@ namespace EShopperAngular.Controllers.Manager
             return BadRequest("Invalid Id");
 
         }
+        [HttpPost("AddColor")]
+        public ActionResult Post([FromBody]List<Color> Colors)
+        {
+            if (Colors != null)
+            {
+                List<Color> existingcolors = new List<Color>();
+                foreach (var color in Colors)
+                {
+                    if(_colorRepository.Index().Where(x=>x.Name == color.Name)!=null)
+                    {
+                        var newcolor = new Color()
+                        {
+                            Name = color.Name
+                        };
+                        _colorRepository.Create(newcolor);
+                    }                  
+                }
+                _colorRepository.Save();
+                return Ok("Color/s Added Successfully");
+            }
+            return BadRequest("List is Empty");
+        }
+        [HttpGet("GetColors")]
+        public ActionResult GetColors()
+        {
+            List<Color> colors = _colorRepository.Index().ToList();
+            if(colors != null)
+            {
+                return Ok(colors);
+            }
+            return NotFound("No Colors Found in DB");
+        }
         [HttpPost("AddProduct")]
         public ActionResult<Products> Post(JsonObject json)
         {
@@ -60,6 +96,16 @@ namespace EShopperAngular.Controllers.Manager
                     System.IO.File.WriteAllBytes(filePath, imageBytes);
                     System.IO.File.WriteAllBytes(filePath2, imageBytes);
                     product.Image = "assets/images/" + product.Image;
+                    foreach (var color in product.ProductColors)
+                    {
+                        var pcolor = new ProductColors()
+                        {
+                            ProductId = product.Id,
+                            ColorId = color.Id,
+                        };
+                        _productColorRepository.Create(pcolor);
+                    }
+                    _productColorRepository.Save();
                     _productsRepository.Create(product);
                     _productsRepository.Save();
                     return Ok(product);
@@ -93,6 +139,25 @@ namespace EShopperAngular.Controllers.Manager
                         System.IO.File.WriteAllBytes(filePath, imageBytes);
                         System.IO.File.WriteAllBytes(filePath2, imageBytes);
                         product.Image = "assets/images/" + product.Image;
+                        List<ProductColors> ProductColors = _productColorRepository.Index().Where(x =>x.ProductId == product.Id).ToList();
+                        if(ProductColors != null)
+                        {
+                            foreach (ProductColors color in ProductColors)
+                            {
+                                _productColorRepository.Delete(color.Id);
+                            }
+                            _productColorRepository.Save();
+                        };
+                        foreach(var color in product.ProductColors)
+                        {
+                            var prodcolor = new ProductColors()
+                            {
+                                ColorId = color.Id,
+                                ProductId = product.Id,
+                            };
+                            _productColorRepository.Create(prodcolor);
+                        }
+                        _productColorRepository.Save();
                         _productsRepository.Edit(product);
                         _productsRepository.Save();
                         return Ok(product);

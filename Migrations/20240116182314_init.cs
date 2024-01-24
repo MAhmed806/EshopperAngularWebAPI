@@ -28,6 +28,10 @@ namespace EShopperAngular.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RememberMe = table.Column<bool>(type: "bit", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -46,6 +50,56 @@ namespace EShopperAngular.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Colors",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Colors", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Order",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderNum = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomerName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomerPhone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomerEmail = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CustomerAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OrderStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderCost = table.Column<int>(type: "int", nullable: false),
+                    DeliveryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Order", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductColors",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    ColorId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductColors", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -169,7 +223,30 @@ namespace EShopperAngular.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "products",
+                name: "ChargeAgainstOrder",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ChargeId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ChargeStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    RefundId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RefundStatus = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ChargeAgainstOrder", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ChargeAgainstOrder_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Order",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Products",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -177,18 +254,45 @@ namespace EShopperAngular.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<int>(type: "int", nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PColor = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Availablequantity = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProductTypeID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_products", x => x.Id);
+                    table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_products_ProductTypes_ProductTypeID",
+                        name: "FK_Products_ProductTypes_ProductTypeID",
                         column: x => x.ProductTypeID,
                         principalTable: "ProductTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    ProductQuantity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_Order_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Order",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderDetails_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -233,8 +337,24 @@ namespace EShopperAngular.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_products_ProductTypeID",
-                table: "products",
+                name: "IX_ChargeAgainstOrder_OrderId",
+                table: "ChargeAgainstOrder",
+                column: "OrderId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderDetails_OrderId",
+                table: "OrderDetails",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderDetails_ProductId",
+                table: "OrderDetails",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_ProductTypeID",
+                table: "Products",
                 column: "ProductTypeID");
         }
 
@@ -256,13 +376,28 @@ namespace EShopperAngular.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "products");
+                name: "ChargeAgainstOrder");
+
+            migrationBuilder.DropTable(
+                name: "Colors");
+
+            migrationBuilder.DropTable(
+                name: "OrderDetails");
+
+            migrationBuilder.DropTable(
+                name: "ProductColors");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Order");
+
+            migrationBuilder.DropTable(
+                name: "Products");
 
             migrationBuilder.DropTable(
                 name: "ProductTypes");

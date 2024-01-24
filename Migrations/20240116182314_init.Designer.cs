@@ -12,17 +12,69 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EShopperAngular.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230207085745_init2")]
-    partial class init2
+    [Migration("20240116182314_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.13")
+                .HasAnnotation("ProductVersion", "6.0.21")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("EShopperAngular.Models.ChargeAgainstOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("ChargeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ChargeStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RefundId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RefundStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.ToTable("ChargeAgainstOrder");
+                });
+
+            modelBuilder.Entity("EShopperAngular.Models.Color", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Colors");
+                });
 
             modelBuilder.Entity("EShopperAngular.Models.Order", b =>
                 {
@@ -104,6 +156,25 @@ namespace EShopperAngular.Migrations
                     b.ToTable("OrderDetails");
                 });
 
+            modelBuilder.Entity("EShopperAngular.Models.ProductColors", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ColorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductColors");
+                });
+
             modelBuilder.Entity("EShopperAngular.Models.Products", b =>
                 {
                     b.Property<int>("Id")
@@ -115,15 +186,15 @@ namespace EShopperAngular.Migrations
                     b.Property<int>("Availablequantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Image")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PColor")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -228,6 +299,10 @@ namespace EShopperAngular.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -279,6 +354,8 @@ namespace EShopperAngular.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -366,9 +443,36 @@ namespace EShopperAngular.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("EShopperAngular.Models.ApplicationUser", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("RememberMe")
+                        .HasColumnType("bit");
+
+                    b.HasDiscriminator().HasValue("ApplicationUser");
+                });
+
+            modelBuilder.Entity("EShopperAngular.Models.ChargeAgainstOrder", b =>
+                {
+                    b.HasOne("EShopperAngular.Models.Order", null)
+                        .WithOne("PaymentDetails")
+                        .HasForeignKey("EShopperAngular.Models.ChargeAgainstOrder", "OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("EShopperAngular.Models.OrderDetails", b =>
                 {
-                    b.HasOne("EShopperAngular.Models.Order", "Order")
+                    b.HasOne("EShopperAngular.Models.Order", null)
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -379,8 +483,6 @@ namespace EShopperAngular.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Order");
 
                     b.Navigation("Product");
                 });
@@ -450,6 +552,9 @@ namespace EShopperAngular.Migrations
             modelBuilder.Entity("EShopperAngular.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
+
+                    b.Navigation("PaymentDetails")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

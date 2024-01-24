@@ -4,7 +4,6 @@ using EShopperAngular.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,14 +11,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EShopperAngular.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230322102840_hehelloworld")]
-    partial class hehelloworld
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.13")
+                .HasAnnotation("ProductVersion", "6.0.21")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -56,7 +54,24 @@ namespace EShopperAngular.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("ChargeAgainstOrder");
+                    b.ToTable("ChargeAgainstOrder", (string)null);
+                });
+
+            modelBuilder.Entity("EShopperAngular.Models.Color", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Colors", (string)null);
                 });
 
             modelBuilder.Entity("EShopperAngular.Models.Order", b =>
@@ -110,7 +125,7 @@ namespace EShopperAngular.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Order");
+                    b.ToTable("Order", (string)null);
                 });
 
             modelBuilder.Entity("EShopperAngular.Models.OrderDetails", b =>
@@ -136,7 +151,26 @@ namespace EShopperAngular.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderDetails", (string)null);
+                });
+
+            modelBuilder.Entity("EShopperAngular.Models.ProductColors", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("ColorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductColors", (string)null);
                 });
 
             modelBuilder.Entity("EShopperAngular.Models.Products", b =>
@@ -150,15 +184,15 @@ namespace EShopperAngular.Migrations
                     b.Property<int>("Availablequantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Image")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PColor")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -175,7 +209,7 @@ namespace EShopperAngular.Migrations
 
                     b.HasIndex("ProductTypeID");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("EShopperAngular.Models.ProductTypes", b =>
@@ -196,7 +230,7 @@ namespace EShopperAngular.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductTypes");
+                    b.ToTable("ProductTypes", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

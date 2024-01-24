@@ -10,6 +10,8 @@ namespace EShopperAngular.Data
         { }
         public DbSet<ProductTypes>? ProductTypes { get; set; }
         public DbSet<Products>? Products { get; set; }
+        public DbSet<Color> Colors { get; set; }
+        public DbSet<ProductColors> ProductColors { get; set; }
         public DbSet<OrderDetails>? OrderDetails { get; set; }
         public DbSet<Order>? Order { get; set; }
         //public DbSet<ProductTypes> User { get; set; }

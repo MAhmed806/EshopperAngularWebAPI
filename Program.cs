@@ -41,6 +41,8 @@ builder.Services.AddScoped<IGenericRepository<Products>, GenericRepository<Produ
 builder.Services.AddScoped<IGenericRepository<ProductTypes>, GenericRepository<ProductTypes>>();
 builder.Services.AddScoped<IGenericRepository<Order>, GenericRepository<Order>>();
 builder.Services.AddScoped<IGenericRepository<OrderDetails>, GenericRepository<OrderDetails>>();
+builder.Services.AddScoped<IGenericRepository<Color>, GenericRepository<Color>>();
+builder.Services.AddScoped<IGenericRepository<ProductColors>, GenericRepository<ProductColors>>();
 builder.Services.AddScoped<IGenericRepository<ChargeAgainstOrder>, GenericRepository<ChargeAgainstOrder>>();
 // Add services to the container.
 builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
